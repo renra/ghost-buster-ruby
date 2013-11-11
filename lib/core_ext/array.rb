@@ -1,5 +1,11 @@
 class Array
   def symbolize!
-    map!(&:to_sym)
+    map!{|element|
+      element.is_a?(String) ? element.to_sym : element
+    }
+  end
+
+  def symbolize
+    self.dup.symbolize!
   end
 end

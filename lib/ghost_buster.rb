@@ -18,7 +18,6 @@ module GhostBuster
       @client = Mysql2::Client.new(host: 'localhost', username: @db_username, password: @db_password, database: @db_name)
 
       find_tables
-      #look_for_ghost_records
     end
 
     def find_tables
@@ -34,10 +33,7 @@ module GhostBuster
 
         @tables[table_name] = {:primary_key => attributes_array.primary_key}
         @tables[table_name][:foreign_keys] = attributes_array.foreign_keys
-
       end
-
-      look_for_ghost_records
     end
 
     def look_for_ghost_records
@@ -50,7 +46,7 @@ module GhostBuster
           records.each do |record|
             begin
               keys[:foreign_keys].each do |foreign_key|
-                table_name = foreign_key.reference_table_name
+                table_name = foreign_key.reference_table_name.to_sym
                 primary_key = @tables[table_name][:primary_key]
                 
                 reference = @client.query("SELECT #{primary_key} FROM #{table_name} WHERE #{primary_key}=#{record[foreign_key.to_s]} LIMIT 1").to_a
@@ -62,6 +58,7 @@ module GhostBuster
               end
             rescue Exception => e
               puts "Exception caught: #{e.message}"
+              puts "Exception caught: #{e.backtrace}"
             end
           end
         end
@@ -85,5 +82,3 @@ module GhostBuster
     end
   end
 end
-
-GhostBuster::Core.new
