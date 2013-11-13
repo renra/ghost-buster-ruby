@@ -1,9 +1,15 @@
 class String
   DICT = {
-    'child' => 'children'
+    /child\z/ => 'ren'
   }
 
   def pluralize
-    DICT[self] || (self + 's')
+    DICT.each do |pattern, suffix|
+      if self.match(pattern)
+        return (self + suffix)
+      end
+    end
+
+    (self + 's')
   end
 end
