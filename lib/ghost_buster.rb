@@ -28,7 +28,7 @@ module GhostBuster
       @tables = {}
 
       table_names.each do |table_name|
-        table_attributes = @client.query("DESCRIBE #{table_name}").to_a.map!{|record| record["Field"] }.symbolize!
+        table_attributes = @client.query("DESCRIBE #{table_name}").to_a.map!{|record| record["Field"] }
         attributes_array = AttributesArray.new(table_attributes)
 
         @tables[table_name] = {:primary_key => attributes_array.primary_key}
@@ -48,9 +48,9 @@ module GhostBuster
               keys[:foreign_keys].each do |foreign_key|
                 table_name = foreign_key.reference_table_name.to_sym
                 primary_key = @tables[table_name][:primary_key]
-                
+
                 reference = @client.query("SELECT #{primary_key} FROM #{table_name} WHERE #{primary_key}=#{record[foreign_key.to_s]} LIMIT 1").to_a
-                
+
                 if reference.empty?
                   trap_ghost(table, record[keys[:primary_key].to_s], foreign_key, record[foreign_key.to_s])
                   puts "*** Ghost busted ***"
@@ -64,7 +64,7 @@ module GhostBuster
         end
 
         puts "*** Clear ***"
-        puts 
+        puts
       end
 
       puts @ghost_trap.inspect

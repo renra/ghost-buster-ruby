@@ -9,6 +9,6 @@ class AttributesArray < Array
   end
 
   def foreign_keys
-    self.find_all{|el| el.match(FK_PATTERN) }.map!{|el| ForeignKey.new(el.to_s) }
+    self.find_all{|el| el.match(FK_PATTERN) }.map!{|el| ForeignKey.new(el) }
   end
 end
