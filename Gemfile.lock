@@ -2,8 +2,11 @@ GEM
   remote: https://rubygems.org/
   specs:
     coderay (1.0.9)
+    metaclass (0.0.1)
     method_source (0.8.2)
     minitest (5.0.8)
+    mocha (0.14.0)
+      metaclass (~> 0.0.1)
     mysql2 (0.3.13)
     pry (0.9.12.2)
       coderay (~> 1.0.5)
@@ -17,6 +20,7 @@ PLATFORMS
 
 DEPENDENCIES
   minitest
+  mocha
   mysql2
   pry
   rake
