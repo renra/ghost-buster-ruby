@@ -110,9 +110,13 @@ class GhostBusterTest < Minitest::Test
       db_name
     )
 
-    @tables = @buster.instance_variable_get(:@tables)
+    @tables = @buster.tables
     @buster.look_for_ghost_records
     @ghost_trap = @buster.ghost_trap
+  end
+
+  def test_bust_em
+    assert_equal @buster.respond_to?(:bust_em), true
   end
 
   def test_tables

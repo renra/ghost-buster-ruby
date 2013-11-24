@@ -1,11 +1,11 @@
 require 'mysql2'
 require_relative 'attributes_array'
-require 'pry'
 
 module GhostBuster
   class Core
 
     attr_reader :ghost_trap
+    attr_reader :tables
 
     def initialize(username, password, db_name, host = 'localhost')
 
@@ -58,22 +58,32 @@ module GhostBuster
             keys[:foreign_keys].each do |foreign_key|
               next if !record[foreign_key]
 
-              table_name = foreign_key.reference_table_name
-              primary_key = @tables[table_name][:primary_key]
+              begin
+                table_name = foreign_key.reference_table_name
+                if !@tables[table_name]
+                  puts "Omitting table #{table_name}."
+                  next
+                end
 
-              reference = @client.query(
-                "SELECT #{primary_key} FROM #{table_name} WHERE #{primary_key}=#{record[foreign_key]} LIMIT 1"
-              ).to_a
+                primary_key = @tables[table_name][:primary_key]
 
-              if reference.empty?
-                trap_ghost(
-                  table,
-                  record[keys[:primary_key].to_s],
-                  foreign_key,
-                  record[foreign_key.to_s]
-                )
+                reference = @client.query(
+                  "SELECT #{primary_key} FROM #{table_name} WHERE #{primary_key}=#{record[foreign_key]} LIMIT 1"
+                ).to_a
 
-                puts "*** Ghost busted ***"
+                if reference.empty?
+                  trap_ghost(
+                    table,
+                    record[keys[:primary_key].to_s],
+                    foreign_key,
+                    record[foreign_key.to_s]
+                 )
+
+                  puts "*** Ghost busted ***"
+                end
+              rescue Exception => e
+                puts "#{e.message} with #{table_name} \
+                  and #{record[foreign_key]} as #{foreign_key}"
               end
             end
           end
@@ -83,6 +93,8 @@ module GhostBuster
         puts
       end
     end
+
+    alias_method :bust_em, :look_for_ghost_records
 
     def trap_ghost(table, primary_key, foreign_key_name, foreign_key_value)
       @ghost_trap[table] ||= {}

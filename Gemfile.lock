@@ -1,6 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    awesome_print (1.2.0)
     coderay (1.0.9)
     metaclass (0.0.1)
     method_source (0.8.2)
@@ -19,6 +20,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  awesome_print
   minitest
   mocha
   mysql2
