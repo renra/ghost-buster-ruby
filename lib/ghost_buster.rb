@@ -45,52 +45,57 @@ module GhostBuster
       end
     end
 
-    def look_for_ghost_records
-      @tables.each do |table, keys|
-        puts "*** Checking table: #{table} ***"
+    def look_for_ghost_records_in_table(table)
+      puts "*** Checking table: #{table} ***"
 
-        if !keys[:foreign_keys].empty?
-          records = @client.query(
-            "SELECT #{keys[:primary_key]}, #{keys[:foreign_keys].join(', ')} FROM #{table}"
-          ).to_a
+      keys = @tables[table]
+      if !keys[:foreign_keys].empty?
+        records = @client.query(
+          "SELECT #{keys[:primary_key]}, #{keys[:foreign_keys].join(', ')} FROM #{table}"
+        ).to_a
 
-          records.each do |record|
-            keys[:foreign_keys].each do |foreign_key|
-              next if !record[foreign_key]
+        records.each do |record|
+          keys[:foreign_keys].each do |foreign_key|
+            next if !record[foreign_key]
 
-              begin
-                table_name = foreign_key.reference_table_name
-                if !@tables[table_name]
-                  puts "Omitting table #{table_name}."
-                  next
-                end
-
-                primary_key = @tables[table_name][:primary_key]
-
-                reference = @client.query(
-                  "SELECT #{primary_key} FROM #{table_name} WHERE #{primary_key}=#{record[foreign_key]} LIMIT 1"
-                ).to_a
-
-                if reference.empty?
-                  trap_ghost(
-                    table,
-                    record[keys[:primary_key].to_s],
-                    foreign_key,
-                    record[foreign_key.to_s]
-                 )
-
-                  puts "*** Ghost busted ***"
-                end
-              rescue Exception => e
-                puts "#{e.message} with #{table_name} \
-                  and #{record[foreign_key]} as #{foreign_key}"
+            begin
+              table_name = foreign_key.reference_table_name
+              if !@tables[table_name]
+                puts "Omitting table #{table_name}."
+                next
               end
+
+              primary_key = @tables[table_name][:primary_key]
+
+              reference = @client.query(
+                "SELECT #{primary_key} FROM #{table_name} WHERE #{primary_key}=#{record[foreign_key]} LIMIT 1"
+              ).to_a
+
+              if reference.empty?
+                trap_ghost(
+                  table,
+                  record[keys[:primary_key].to_s],
+                  foreign_key,
+                  record[foreign_key.to_s]
+               )
+
+                puts "*** Ghost busted ***"
+              end
+            rescue Exception => e
+              puts "#{e.message} with #{table_name} \
+                and #{record[foreign_key]} as #{foreign_key}"
             end
           end
         end
+      end
 
-        puts "*** Table checked ***"
-        puts
+      puts "*** Table checked ***"
+      puts
+    end
+
+    def look_for_ghost_records
+      @tables.each_key do |table|
+        look_for_ghost_records_in_table(table)
       end
     end
 
