@@ -1,7 +1,7 @@
 gem 'minitest'
 require 'minitest/autorun'
 require 'minitest/mock'
-require 'mocha'
+require 'mocha/setup'
 require_relative '../lib/ghost_buster'
 
 class GhostBusterTest < Minitest::Test
@@ -12,7 +12,7 @@ class GhostBusterTest < Minitest::Test
     db_name = 'db_name'
 
     @db_client = mock
-    Mysql2::Client.expects(:new).with(
+    Mysql2::Client.stubs(:new).with(
       host: host,
       username: username,
       password: password,
@@ -55,7 +55,7 @@ class GhostBusterTest < Minitest::Test
       ]
     )
 
-    @db_client.expects(:query).with(
+    @db_client.stubs(:query).with(
       'SELECT id, organization_id FROM users'
     ).returns(
       [
@@ -65,7 +65,7 @@ class GhostBusterTest < Minitest::Test
       ]
     )
 
-    @db_client.expects(:query).with(
+    @db_client.stubs(:query).with(
       "SELECT id, organization_id, user_id FROM children"
     ).returns(
       [

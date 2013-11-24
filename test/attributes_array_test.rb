@@ -1,9 +1,10 @@
+gem 'minitest'
 require 'minitest/autorun'
 require_relative '../lib/attributes_array'
 
 class AttributesArrayTest < Minitest::Test
   def setup
-    @subject = AttributesArray.new(
+    @subject = GhostBuster::AttributesArray.new(
       [
         'time',
         'id',
