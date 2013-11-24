@@ -12,6 +12,7 @@ Gem::Specification.new do |s|
     "lib/foreign_key.rb",
     "lib/core_ext/string.rb"
   ]
+  s.add_runtime_dependency 'awesome_print'
   s.homepage    =
     'https://github.com/renra/ghost-buster-ruby'
   s.license       = 'MIT'
